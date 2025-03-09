@@ -1,2 +1,30 @@
 config.py
 data_clean_feature_catboost_training_dl_progect.ipynb
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# CatBoost temporary files
+catboost_info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+data_clean_feature_catboost_training_dl_progect.ipynb
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+Thumbs.db
