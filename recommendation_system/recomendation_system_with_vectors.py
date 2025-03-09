@@ -7,6 +7,7 @@ from catboost import CatBoostClassifier
 import pandas as pd
 from datetime import datetime
 from src.schema import PostGet
+from src.prepare_data import prepare_data
 
 app = FastAPI()
 
@@ -15,22 +16,12 @@ def load_model():
     from_file = CatBoostClassifier() 
     return from_file.load_model(model_path)
 
-df_users = pd.read_csv('./data/users.csv')
-df_posts = pd.read_csv('./data/posts.csv')
-df_feeds = pd.read_csv('./data/feeds.csv')
-
-# Группировка по post_id и вычисление количества лайков и взаимодействий
-likes = df_feeds.groupby('post_id')['target'].sum()
-actions = df_feeds.groupby('post_id')['target'].count()
-# Вычисление рейтинга
-df_posts['rating'] = likes / actions
-# заполняем пропуски
-df_posts['rating'].fillna(0, inplace=True)
-
-
+# загрузка и предобработка данных
+print("Загружаем данные. Пожалуйста, подождите, это может занять некоторое время...")
+df_users, df_posts, df_feeds = prepare_data()
 
 best_posts = df_posts.sort_values(by='rating', ascending=False).head(5)[['post_id', 'text', 'topic']].rename(columns={'post_id': 'id'}).to_dict('records')
-model = load_model() # загружаемобученную модель
+model = load_model() # загружаем обученную модель
 
 def recomendation_posts(user_id: int, df_users: pd.DataFrame, df_posts: pd.DataFrame, df_feeds: pd.DataFrame, limit: int = 5) -> List[dict]:
     df = df_users[df_users['user_id']==user_id] # находим пользователя

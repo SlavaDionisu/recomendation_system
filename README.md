@@ -8,25 +8,59 @@
 Работа сервиса: пользователю будут рекомендовать только посты, которые он еще не видел. Модель Catboost предсказывает вероятности того, что пользователь лайкнет тот или иной пост, далее посты ранжируются по вероятности лайка и возвращается необходимое количесво (по умолчанию 5).  
 Технические ограничения: среднее время работы одного запроса не более 0,5 секунд, ограничения по памяти не больше, чем 4 гб RAM на запуск. 
 
-## Необходимо
+## Общие требования
 - Python 3.8.5
-- pip
+- Git
+- pip (менеджер пакетов Python)
 
-## Установка
+## Установка и запуск
 
 1. Скопируйте репозиторий:
-```bash
-git clone https://github.com/SlavaDionisu/recomendation_system.git
-cd recomendation_system
-```
-2. Установите необходимые зависимости:  
-```bash
-pip install -r requirements.txt 
-``` 
-3. Запустите основной код для запуска рекомендательной системы:  
-```bash
-python src/main.py
-```
+    ```bash
+    git clone https://github.com/SlavaDionisu/recomendation_system.git
+    cd recomendation_system
+    ```
+2. Создайте виртуальное окружение (рекомендуется):
+    - Windows:
+        ```bash
+        python -m venv venv
+        venv\Scripts\activate
+        ```
+    - macOS и Linux:
+        ```bash
+        python3 -m venv venv
+        source venv/bin/activate
+        ```
+3. Установите необходимые зависимости:  
+    - Установка библиотеки PyTorch
+        * Если вы используете Windows, у вас есть видеокарта NVIDIA и вы хотите использовать её для ускорения вычислений, выполните следующие шаги:
+            + Установите драйверы CUDA:  
+            Убедитесь, что у вас установлены драйверы CUDA, совместимые с вашей видеокартой. Вы можете скачать их с [официального сайта NVIDIA](https://developer.nvidia.com/cuda-downloads).  
+            Также вам понадобиится CUDA Toolkit, который соответствует версии драйверов - cледуйте инструкциям по установке на сайте NVIDIA.
+            Если вы используете Windows, eбедитесь, что у вас установлены компоненты C++ build tools из Visual Studio.
+            + Установите PyTorch с поддержкой CUDA:  
+                ```bash
+                pip install torch==2.4.1+cu121 -f https://download.pytorch.org/whl/cu121
+                ```
+        * Если у вас нет видеокарты NVIDIA или вы используете macOS или вы не хотите использовать CUDA, выполните следующие шаги:
+            + Установите PyTorch без поддержки CUDA:  
+                ```bash
+                pip install torch==2.4.1
+                ```
+        * После установки PyTorch вы можете проверить, что он установлен правильно, выполнив следующий код на Python:
+            ```bash
+            import torch
+            print(torch.__version__)
+            print(torch.cuda.is_available())  # Должно вернуть True, если CUDA доступна
+            ```
+    - Установите остальные зависимости:
+        ```bash
+        pip install -r requirements.txt 
+        ``` 
+4. Запустите основной код для запуска рекомендательной системы:  
+    ```bash
+    python src/main.py
+    ```
 
 ## Структура проекта
 recommendation_system/  
