@@ -45,7 +45,6 @@ def recomendation_posts(user_id: int, df_users: pd.DataFrame, df_posts: pd.DataF
 @app.get("/post/recommendations/", response_model=List[PostGet])
 def recommended_posts(
 		id: int, 
-		time: datetime, 
 		limit: int = 5,
         ) -> List[PostGet]:
     recommended_posts_list = recomendation_posts(id, df_users, df_posts, df_feeds, limit)
