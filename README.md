@@ -81,8 +81,8 @@ recommendation_system/
 │   └── feeds.csv                              # история взаимодействия юзеров с постами  
 │  
 ├── recommendation_system/  
-│   ├── recomendation_system_with_vectors.py   # основной скрипт рекомендательной системы  
-│   └── catboost_model_with_vectors            # модель  
+│   ├── recommendation_system.py               # основной скрипт рекомендательной системы  
+│   └── catboost_model                         # модель  
 │  
 ├── src/                  
 │   ├── main.py                                # входная точка запуска приложения  

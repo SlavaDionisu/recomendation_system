@@ -1,13 +1,13 @@
 import pandas as pd
 import numpy as np
-import os
 import torch
 from transformers import RobertaModel, RobertaTokenizer
 from sklearn.decomposition import PCA
 
+
 def vectorize_texts(texts):
     """
-    Векторизует список текстов при помощи модели RoBERTa. 
+    Векторизует список текстов при помощи модели RoBERTa.
     Получает: texts - список текстов (строк)
     Возвращает: numpy array эмбеддингов текстов
     """
@@ -15,7 +15,7 @@ def vectorize_texts(texts):
     # загружаем предобученную модель и токенизатор
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
     model = RobertaModel.from_pretrained('roberta-base').to(device)
-    model.eval()  
+    model.eval()
     # токенизация текстов
     inputs = tokenizer(texts, return_tensors='pt', padding=True, truncation=True).to(device)
     # получение выходов модели
@@ -25,6 +25,7 @@ def vectorize_texts(texts):
     cls_vectors = outputs.last_hidden_state[:, 0, :].cpu().numpy()
 
     return cls_vectors
+
 
 def reduce_dimensions(vectors):
     """
@@ -46,6 +47,7 @@ def reduce_dimensions(vectors):
 
     return reduced_vectors
 
+
 def prepare_data():
     """
     Готовит данные для рекомендательной системы.
@@ -65,7 +67,11 @@ def prepare_data():
     vectors = vectorize_texts(texts)
     reduced_vectors = reduce_dimensions(vectors)
     # добавляем уменьшенные векторы к дакафрейму постов
-    reduced_vector_columns = pd.DataFrame(reduced_vectors, columns=[f'pca_{i+1}' for i in range(reduced_vectors.shape[1])], index=posts.index)
+    reduced_vector_columns = pd.DataFrame(
+        reduced_vectors,
+        columns=[f'pca_{i+1}' for i in range(reduced_vectors.shape[1])],
+        index=posts_df.index
+    )
     posts_df = pd.concat([posts_df, reduced_vector_columns], axis=1)
-    
+
     return users_df, posts_df, feeds_df
