@@ -12,7 +12,7 @@ def load_model():
     """
     загружает обученную модель catboost
     """
-    model_path = "./recommendation_system/catboost_model_with_vectors"
+    model_path = "./recommendation_system/catboost_model"
     from_file = CatBoostClassifier()
     return from_file.load_model(model_path)
 
