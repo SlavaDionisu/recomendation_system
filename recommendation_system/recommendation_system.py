@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from typing import List
 from catboost import CatBoostClassifier
 import pandas as pd
+from datetime import datetime
 from src.schema import PostGet
 from src.prepare_data import prepare_data
 
@@ -35,17 +36,18 @@ def recomendation_posts(
     df_users: pd.DataFrame,
     df_posts: pd.DataFrame,
     df_feeds: pd.DataFrame,
+    time: datetime,
     limit: int = 5
 ) -> List[dict]:
     df = df_users[df_users['user_id'] == user_id]  # находим пользователя
     if df.empty:  # если пользователь не найден, возвращаем лучшие посты
         return best_posts
-    df_feeds_curr = df_feeds[df_feeds['user_id'] == user_id]  # находим посты которые юзер видел
-    df_posts_new = df_posts[~df_posts['post_id'].isin(df_feeds_curr['post_id'])]  # убираем посты которые юзер видел
+    df_feeds_curr = df_feeds[(df_feeds['user_id'] == user_id) & (df_feeds['timestamp'] < time)]  # находим посты, которые юзер видел
+    df_posts_new = df_posts[~df_posts['post_id'].isin(df_feeds_curr['post_id'])]  # убираем посты которые, юзер видел
     df = df.merge(df_posts_new.drop(columns='text'), how='cross')  # готовим данные для модельки
     df = df.drop(columns='user_id')
     df = df.set_index('post_id')  # это чтоб потом найти
-    # зафиксировали столбцы на всякий случай
+    # зафиксировали столбцы, т к модель обучалась именно на них
     df = df[[
         'topic', 'rating', 'pca_1', 'pca_2', 'pca_3', 'pca_4', 'pca_5', 'pca_6',
         'pca_7', 'pca_8', 'pca_9', 'pca_10', 'pca_11', 'pca_12', 'pca_13',
@@ -85,7 +87,7 @@ def recomendation_posts(
         left_index=True, right_on='post_id', how='left'
     ).reset_index()  # вернули сам текст поста, т к мы его убирали
     df = df[['post_id', 'text', 'topic']]  # оставили только нужные столбцы
-    df = df.rename(columns={'post_id': 'id'})  # переименовали, чтоб класс смог понять
+    df = df.rename(columns={'post_id': 'id'})
     list_of_dicts = df.to_dict('records')
     return list_of_dicts
 
@@ -93,7 +95,8 @@ def recomendation_posts(
 @app.get("/post/recommendations/", response_model=List[PostGet])
 def recommended_posts(
 	id: int,
+    time: datetime,
 	limit: int = 5,
 ) -> List[PostGet]:
-    recommended_posts_list = recomendation_posts(id, df_users, df_posts, df_feeds, limit)
+    recommended_posts_list = recomendation_posts(id, df_users, df_posts, df_feeds, time, limit)
     return [PostGet(**row) for row in recommended_posts_list]  # превратили словарь в объект класса
