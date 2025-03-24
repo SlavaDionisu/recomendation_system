@@ -5,7 +5,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # импрот приложения FastAPI
-from recommendation_system.recomendation_system_with_vectors import app
+from recommendation_system.recommendation_system import app
 
 # запуск сервера Uvicorn на локальном хосте (если скрипт запущен напрямую)
 if __name__ == "__main__":
