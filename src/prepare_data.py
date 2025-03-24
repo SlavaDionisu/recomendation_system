@@ -62,6 +62,8 @@ def prepare_data():
     users_df = pd.read_csv('./data/users.csv', sep=';')
     feeds_df = pd.read_csv('./data/feeds.csv', sep=';')
     posts_df = pd.read_csv('./data/posts.csv', sep=';')
+    # привеение столбца timestamp в формат datetime
+    feeds_df['timestamp'] = pd.to_datetime(feeds_df['timestamp'])
     # считаем рейтинг постов
     likes = feeds_df.groupby('post_id')['target'].sum()
     actions = feeds_df.groupby('post_id')['target'].count()
