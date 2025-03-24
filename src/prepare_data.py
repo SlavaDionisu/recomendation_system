@@ -5,7 +5,7 @@ from transformers import RobertaModel, RobertaTokenizer
 from sklearn.decomposition import PCA
 
 
-def vectorize_texts(texts):
+def vectorize_texts(texts, batch_size=16):
     """
     Векторизует список текстов при помощи модели RoBERTa.
     Получает: texts - список текстов (строк)
@@ -16,15 +16,20 @@ def vectorize_texts(texts):
     tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
     model = RobertaModel.from_pretrained('roberta-base').to(device)
     model.eval()
-    # токенизация текстов
-    inputs = tokenizer(texts, return_tensors='pt', padding=True, truncation=True).to(device)
-    # получение выходов модели
-    with torch.no_grad():
-        outputs = model(**inputs)
-    # получение векторов для классификации (CLS token)
-    cls_vectors = outputs.last_hidden_state[:, 0, :].cpu().numpy()
+    cls_vectors = []
+    # обработка текстов батчами
+    for i in range(0, len(texts), batch_size):
+        batch_texts = texts[i:i+batch_size]
+        # токенизация текстов
+        inputs = tokenizer(batch_texts, return_tensors='pt', padding=True, truncation=True).to(device)
+        # получение выходов модели
+        with torch.no_grad():
+            outputs = model(**inputs)
+        # получение векторов для классификации (CLS token)
+        batch_cls_vectors = outputs.last_hidden_state[:, 0, :].cpu().numpy()
+        cls_vectors.append(batch_cls_vectors)
 
-    return cls_vectors
+    return np.concatenate(cls_vectors, axis=0)  # объединяем векторы в массив
 
 
 def reduce_dimensions(vectors):
@@ -54,9 +59,9 @@ def prepare_data():
     Возвращает: кортеж датафреймой (users, posts, feeds)
     """
     # загрузка таблиц
-    users_df = pd.read_csv('./data/users.csv')
-    feeds_df = pd.read_csv('./data/feeds.csv')
-    posts_df = pd.read_csv('./data/posts.csv')
+    users_df = pd.read_csv('./data/users.csv', sep=';')
+    feeds_df = pd.read_csv('./data/feeds.csv', sep=';')
+    posts_df = pd.read_csv('./data/posts.csv', sep=';')
     # считаем рейтинг постов
     likes = feeds_df.groupby('post_id')['target'].sum()
     actions = feeds_df.groupby('post_id')['target'].count()
