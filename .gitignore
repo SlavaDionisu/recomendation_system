@@ -1,5 +1,6 @@
 config.py
 data_clean_feature_catboost_training_dl_progect.ipynb
+.env
 
 # Python bytecode
 __pycache__/
